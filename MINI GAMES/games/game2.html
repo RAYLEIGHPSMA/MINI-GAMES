@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Game 2 — Reaction Timer</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="site">
+    <header class="site-header">
+      <h1>Reaction Timer</h1>
+      <a class="btn" href="../index.html">Back</a>
+    </header>
+
+    <main class="play-area center" style="flex-direction:column;">
+      <div id="box" style="width:320px;height:120px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--glass);cursor:pointer;">
+        <div id="boxText">Click to start</div>
+      </div>
+      <div id="status" class="meta">Ready</div>
+      <div id="best" class="meta">Best: -</div>
+    </main>
+
+    <footer class="footer">Click when the box turns green. Faster is better.</footer>
+  </div>
+
+  <script>
+  const box = document.getElementById('box');
+  const boxText = document.getElementById('boxText');
+  const status = document.getElementById('status');
+  let phase = 'idle';
+  let startAt = 0;
+  let timer = null;
+
+  function setBest(v){ try{ if(window.setResult) window.setResult(2, Math.round(v), 'lower'); }catch(e){}; updateBest(); }
+  function updateBest(){ try{ const r = window.getResult?window.getResult(2):JSON.parse(localStorage.getItem('miniGamesState')||'{}').results&&JSON.parse(localStorage.getItem('miniGamesState')).results[2]; document.getElementById('best').textContent = r? `Best: ${r.value}s`:'Best: -'; }catch(e){} }
+
+  box.addEventListener('click', ()=>{
+    if (phase === 'idle'){
+      phase = 'waiting';
+      box.style.background = 'rgba(255,180,100,0.12)';
+      boxText.textContent = 'Wait for green...';
+      status.textContent = '';
+      const delay = 800 + Math.random()*2000;
+      timer = setTimeout(()=>{
+        phase = 'go'; startAt = performance.now(); box.style.background = 'linear-gradient(90deg,#8ef0c9,#7be6ff)'; boxText.textContent='CLICK!';
+      }, delay);
+    } else if (phase === 'waiting'){
+      // clicked too early
+      clearTimeout(timer); phase = 'idle'; box.style.background='var(--glass)'; boxText.textContent='Too soon! Click to retry'; status.textContent='Too soon!';
+    } else if (phase === 'go'){
+      const dt = (performance.now() - startAt)/1000;
+      status.textContent = `Reaction: ${dt.toFixed(3)}s`;
+      setBest(dt.toFixed(3));
+      phase = 'idle'; box.style.background='var(--glass)'; boxText.textContent='Click to start';
+    }
+  });
+
+  updateBest();
+  </script>
+</body>
+</html>

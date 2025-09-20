@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Game 7 — Memory Match</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .grid{display:grid;grid-template-columns:repeat(4,80px);gap:10px}
+    .card{width:80px;height:80px;background:var(--glass);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="site">
+    <header class="site-header"><h1>Memory Match</h1><a class="btn" href="../index.html">Back</a></header>
+    <main class="play-area center" style="flex-direction:column;">
+      <div class="meta">Find all pairs as fast as possible.</div>
+      <div class="grid" id="grid"></div>
+      <div id="status" class="meta">Time: 0s</div>
+    </main>
+  </div>
+  <script>
+  const grid = document.getElementById('grid'); const status = document.getElementById('status'); let cards=[], first=null, second=null, matches=0, start=0, timer=0;
+  function init(){ const items=[1,2,3,4,5,6,7,8]; cards = items.concat(items).sort(()=>Math.random()-0.5).map(v=>({v,flipped:false,matched:false})); grid.innerHTML=''; cards.forEach((c,i)=>{ const el=document.createElement('div'); el.className='card'; el.textContent = c.flipped||c.matched? c.v : ''; el.addEventListener('click', ()=> flip(i,el)); grid.appendChild(el); }); matches=0; start=performance.now(); requestAnimationFrame(tick); }
+  function flip(i,el){ const c=cards[i]; if (c.flipped||c.matched) return; c.flipped=true; el.textContent=c.v; if (!first) first={i,el}; else if (!second){ second={i,el}; checkPair(); } }
+  function checkPair(){ if (cards[first.i].v===cards[second.i].v){ cards[first.i].matched=true; cards[second.i].matched=true; matches++; first=second=null; if (matches===8){ const seconds=Math.floor((performance.now()-start)/1000); status.textContent=`Done: ${seconds}s`; try{ if(window.setResult) window.setResult(7, seconds, 'lower'); }catch(e){} } } else { setTimeout(()=>{ cards[first.i].flipped=false; cards[second.i].flipped=false; const a=grid.children[first.i], b=grid.children[second.i]; a.textContent=''; b.textContent=''; first=second=null; },700); } }
+  function tick(){ status.textContent = `Time: ${Math.floor((performance.now()-start)/1000)}s`; requestAnimationFrame(tick); }
+  init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<link rel="stylesheet" href="css/style.css">
+<script src="js/main.js" defer></script>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stage 1</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/main.js" defer></script>
+</head>
+<body>
+<h1>Stage 1 - Mini Games</h1>
+<div class="games">
+    <button onclick="playGame(1)">Game 1</button>
+    <button onclick="playGame(2)">Game 2</button>
+    <button onclick="playGame(3)">Game 3</button>
+    <button onclick="playGame(4)">Game 4</button>
+</div>
+<script>
+function playGame(num){ window.location.href=`game${num}.html`; }
+</script>
+</body>
+</html>

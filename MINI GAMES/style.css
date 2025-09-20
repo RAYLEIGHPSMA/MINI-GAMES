@@ -1,0 +1,48 @@
+/* style.css
+     Root stylesheet for MINI GAMES (project root)
+     This file provides baseline styles for pages that don't use `css/style.css`.
+*/
+
+:root{
+    --bg-0:#061426;
+    --bg-1:#041025;
+    --card:#0c1a2a;
+    --accent:#ffd166;
+    --accent-2:#ff915f;
+    --muted:#9fb0c9;
+    --text:#eaf6ff;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+    font-family:Segoe UI, Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;
+    background:linear-gradient(180deg,var(--bg-0),var(--bg-1));
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.4;
+}
+
+.site{max-width:1100px;margin:28px auto;padding:16px}
+
+.site-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.site-header h1{color:var(--accent);font-size:1.6rem}
+.site-header p{color:var(--muted)}
+
+.games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+
+.game-card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 8px 20px rgba(0,0,0,0.45);display:flex;flex-direction:column;gap:10px}
+.game-card:hover{transform:translateY(-6px);transition:transform .16s ease}
+.game-title{font-weight:700}
+.game-desc{color:var(--muted);font-size:.95rem}
+
+.btn, a.btn{display:inline-block;padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#041025;text-decoration:none;font-weight:700}
+
+.footer{text-align:center;color:var(--muted);margin-top:28px}
+
+img{max-width:100%;display:block;border-radius:6px}
+
+@media (max-width:480px){.site{padding:12px}.site-header h1{font-size:1.2rem}}
+
+/* End of root stylesheet */

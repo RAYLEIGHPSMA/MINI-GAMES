@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Game 3 — Click Speed</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="site">
+    <header class="site-header">
+      <h1>Click Speed</h1>
+      <a class="btn" href="../index.html">Back</a>
+    </header>
+
+    <main class="play-area center" style="flex-direction:column;">
+      <div class="meta">Click as many times as you can in <strong>10 seconds</strong>.</div>
+      <button id="clickBtn" class="btn" style="font-size:18px;padding:20px 28px;margin-top:12px;">Click me</button>
+      <div id="score" class="meta">0</div>
+      <div id="best" class="meta">Best: -</div>
+    </main>
+
+    <footer class="footer">Start by clicking the big button. Timer starts on first click.</footer>
+  </div>
+
+  <script>
+  const clickBtn = document.getElementById('clickBtn');
+  const scoreEl = document.getElementById('score');
+  let started = false; let count = 0; let endAt = 0; let timerId = null;
+
+  function finish(){
+    started=false; clickBtn.disabled=true; scoreEl.textContent = count; if(window.setResult) window.setResult(3, count, 'higher'); document.getElementById('best').textContent = window.getResult? `Best: ${window.getResult(3).value}` : 'Best: -';
+  }
+
+  clickBtn.addEventListener('click', ()=>{
+    if (!started){ started=true; count=0; clickBtn.textContent='Click!'; scoreEl.textContent=0; endAt = performance.now() + 10000; timerId = setInterval(()=>{ if(performance.now()>endAt){ clearInterval(timerId); finish(); } }, 50); }
+    if (started){ count++; scoreEl.textContent = count; }
+  });
+
+  // show best on load
+  try{ const r = window.getResult?window.getResult(3):null; document.getElementById('best').textContent = r? `Best: ${r.value}`:'Best: -'; }catch(e){}
+  </script>
+</body>
+</html>

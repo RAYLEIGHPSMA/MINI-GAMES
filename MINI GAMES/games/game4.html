@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Game 4 — Jump Dodge</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="site">
+    <header class="site-header">
+      <h1>Jump Dodge</h1>
+      <a class="btn" href="../index.html">Back</a>
+    </header>
+
+    <main class="play-area center" style="flex-direction:column;">
+      <canvas id="c" width="520" height="240" style="border-radius:8px;background:var(--glass);"></canvas>
+      <div id="status" class="meta">Ready</div>
+      <div id="best" class="meta">Best: -</div>
+      <div style="margin-top:8px"><button id="start" class="btn">Start</button></div>
+    </main>
+
+    <footer class="footer">Press Space to jump. Survive as long as possible.</footer>
+  </div>
+
+  <script>
+  const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
+  let running=false, last=0, t0=0, best=null; const player={x:40,y:180,w:18,h:30,vy:0}; let obstacles=[];
+
+  function spawn(){ obstacles.push({x:canvas.width+20,y:180-12,w:18,h:12,speed:2+Math.random()*2}); }
+
+  function update(dt){
+    if (!running) return; t0+=dt; player.vy += 0.002*dt; player.y += player.vy*dt*0.06;
+    if (player.y>180) { player.y=180; player.vy=0; }
+    if (Math.random()<0.01) spawn();
+    obstacles.forEach(o=> o.x -= o.speed*dt*0.06);
+    obstacles = obstacles.filter(o=> o.x+o.w> -20);
+    for (const o of obstacles){ if (o.x < player.x+player.w && o.x+o.w>player.x && o.y<player.y+player.h && o.y+o.h>player.y){ stop(); } }
+  }
+
+  function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#7be6ff'; ctx.fillRect(player.x,player.y,player.w,player.h); ctx.fillStyle='#ff6b6b'; obstacles.forEach(o=>ctx.fillRect(o.x,o.y,o.w,o.h)); ctx.fillStyle='#fff'; ctx.fillText(`Time: ${Math.floor(t0/1000)}s`,12,18); }
+
+  function loop(ts){ if(!last) last=ts; const dt=ts-last; last=ts; if (running) update(dt); draw(); requestAnimationFrame(loop); }
+
+  function start(){ running=true; last=0; t0=0; obstacles=[]; player.y=180; player.vy=0; document.getElementById('status').textContent='Playing'; }
+  function stop(){ running=false; document.getElementById('status').textContent='Crashed'; const seconds = Math.floor(t0/1000); try{ if(window.setResult) window.setResult(4, seconds, 'higher'); }catch(e){}; updateBest(); }
+
+  function updateBest(){ try{ const r = window.getResult?window.getResult(4):null; document.getElementById('best').textContent = r? `Best: ${r.value}s`:'Best: -'; }catch(e){} }
+
+  document.addEventListener('keydown', (e)=>{ if (e.code==='Space'){ if (!running) start(); else if (player.y>=178) player.vy = -7; } });
+  document.getElementById('start').addEventListener('click', ()=> start());
+  requestAnimationFrame(loop);
+  updateBest();
+  </script>
+</body>
+</html>

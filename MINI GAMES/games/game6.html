@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Game 6 — Tic Tac Toe</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>.board{display:grid;grid-template-columns:repeat(3,96px);gap:8px}.cell{width:96px;height:96px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;border-radius:8px}</style>
+</head>
+<body>
+  <div class="site">
+    <header class="site-header"><h1>Tic Tac Toe</h1><a class="btn" href="../index.html">Back</a></header>
+    <main class="play-area center" style="flex-direction:column;">
+      <div class="board" id="board"></div>
+      <div id="status" class="meta">X to play</div>
+      <div style="margin-top:8px"><button id="reset" class="btn">Reset</button></div>
+    </main>
+  </div>
+  <script>
+  const boardEl = document.getElementById('board'); const status=document.getElementById('status'); let board = Array(9).fill(null); let turn='X'; let moves=0; let finished=false; function render(){ boardEl.innerHTML=''; board.forEach((v,i)=>{ const c=document.createElement('div'); c.className='cell'; c.textContent=v||''; c.addEventListener('click', ()=> clickCell(i)); boardEl.appendChild(c); }); }
+  function clickCell(i){ if (finished || board[i]) return; board[i]=turn; moves++; check(); turn = turn==='X'?'O':'X'; status.textContent = finished? status.textContent : `${turn} to play`; render(); }
+  function check(){ const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; for(const l of lines){ const [a,b,c]=l; if (board[a] && board[a]===board[b] && board[a]===board[c]){ finished=true; status.textContent = `${board[a]} wins!`; // record moves (lower moves better)
+    try{ if(window.setResult) window.setResult(6, moves, 'lower'); }catch(e){}; return; } } if (moves===9){ finished=true; status.textContent='Draw'; try{ if(window.setResult) window.setResult(6, moves, 'lower'); }catch(e){} } }
+  document.getElementById('reset').addEventListener('click', ()=>{ board=Array(9).fill(null); turn='X'; moves=0; finished=false; status.textContent='X to play'; render(); }); render();
+  </script>
+</body>
+</html>

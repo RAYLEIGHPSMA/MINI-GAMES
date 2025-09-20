@@ -1,0 +1,33 @@
+<link rel="stylesheet" href="css/style.css">
+<script src="js/main.js" defer></script>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game 1</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/main.js" defer></script>
+</head>
+<body>
+<h1>Game 1</h1>
+<p>Click the button 5 times to win!</p>
+<button id="btn">Click me!</button>
+<p id="score">0</p>
+
+<script>
+let score=0;
+document.getElementById('btn').onclick=()=>{
+    score++;
+    document.getElementById('score').innerText=score;
+    if(score>=5){
+        alert("You completed Game 1!");
+        localStorage.setItem('stage2Unlocked','true');
+        window.location.href='stage1.html';
+    }
+};
+</script>
+</body>
+</html>

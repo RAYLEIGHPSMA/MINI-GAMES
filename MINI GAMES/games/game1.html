@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Game 1 — Dodge</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* small overrides for the game page */
+    .play-area { display:flex; flex-direction:column; gap:12px; align-items:center; }
+    canvas { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); border-radius:8px; }
+  </style>
+</head>
+<body>
+  <div class="site">
+    <header class="site-header">
+      <h1>Game 1 — Dodge</h1>
+      <a class="btn" href="../index.html">Back</a>
+    </header>
+
+    <main class="play-area">
+      <p class="game-desc">Move left/right to avoid falling blocks. Survive 30 seconds to win.</p>
+      <canvas id="gameCanvas" width="420" height="560"></canvas>
+      <div>
+        <button id="startBtn" class="btn">Start</button>
+        <button id="resetBtn" class="btn">Reset</button>
+      </div>
+      <div id="status" class="meta">Ready</div>
+      <div id="best" class="meta">Best: -</div>
+    </main>
+
+    <footer class="footer">Completion will unlock the next game.</footer>
+  </div>
+
+  <script>
+  // Simple canvas dodge game as an example
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const player = { x:canvas.width/2 - 18, y: canvas.height - 48, w:36, h:16, speed:6 };
+  let obstacles = [];
+  let running = false;
+  let elapsed = 0;
+  let lastTs = 0;
+  let score = 0;
+
+  document.addEventListener('keydown', (e)=>{
+    if (!running) return;
+    if (e.key === 'ArrowLeft') player.x -= player.speed*2;
+    if (e.key === 'ArrowRight') player.x += player.speed*2;
+    player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
+  });
+
+  function spawnObstacle(){
+    const w = 24 + Math.random()*48;
+    const x = Math.random()*(canvas.width - w);
+    obstacles.push({ x, y:-20, w, h:12, speed: 1 + Math.random()*2 });
+  }
+
+  function update(dt){
+    elapsed += dt;
+    if (elapsed > 30_000) { // 30s win
+      running = false; 
+      const seconds = Math.floor(elapsed/1000);
+      document.getElementById('status').textContent = `You win! ${seconds}s`;
+      try { // use global helper to set score and unlock next
+        if (window.setScore) window.setScore(1, seconds);
+        else {
+          const state = JSON.parse(localStorage.getItem('miniGamesState')) || { unlocked:1, scores:{} };
+          state.unlocked = Math.max(state.unlocked||1, 2);
+          state.scores = state.scores || {};
+          state.scores[1] = Math.min(state.scores[1] || 9999, seconds);
+          localStorage.setItem('miniGamesState', JSON.stringify(state));
+        }
+      } catch(e){console.warn(e)}
+      updateBest();
+      return;
+    }
+
+    // spawn occasionally
+    if (Math.random() < 0.02) spawnObstacle();
+
+    obstacles.forEach(o=> o.y += o.speed*dt*0.06);
+    obstacles = obstacles.filter(o=> o.y < canvas.height + 40);
+
+    // collision
+    for (const o of obstacles){
+      if (o.x < player.x + player.w && o.x + o.w > player.x && o.y < player.y + player.h && o.y + o.h > player.y){
+        running = false; document.getElementById('status').textContent = 'You crashed! Try again.'; return;
+      }
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // player
+    ctx.fillStyle = '#ffd166'; ctx.fillRect(player.x, player.y, player.w, player.h);
+    // obstacles
+    ctx.fillStyle = '#ff6b6b';
+    obstacles.forEach(o=> ctx.fillRect(o.x, o.y, o.w, o.h));
+    // timer
+    ctx.fillStyle = '#fff'; ctx.font = '14px sans-serif';
+    ctx.fillText(`Time: ${Math.floor(elapsed/1000)}s`, 12, 20);
+  }
+
+  function loop(ts){
+    if (!lastTs) lastTs = ts; const dt = ts - lastTs; lastTs = ts;
+    if (running) update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  document.getElementById('startBtn').addEventListener('click', ()=>{
+    if (!running){ running=true; elapsed=0; obstacles=[]; lastTs=0; document.getElementById('status').textContent='Playing'; }
+  });
+  document.getElementById('resetBtn').addEventListener('click', ()=>{ running=false; elapsed=0; obstacles=[]; document.getElementById('status').textContent='Ready'; });
+
+  requestAnimationFrame(loop);
+
+  function updateBest(){
+    try{
+      let best = null;
+      if (window.getScore) best = window.getScore(1);
+      else {
+        const state = JSON.parse(localStorage.getItem('miniGamesState')) || { scores:{} };
+        best = state.scores && state.scores[1];
+      }
+      document.getElementById('best').textContent = best ? `Best: ${best}s` : 'Best: -';
+    }catch(e){}
+  }
+
+  // show best on load
+  updateBest();
+  </script>
+</body>
+</html>
